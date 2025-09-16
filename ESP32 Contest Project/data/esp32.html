@@ -1,0 +1,196 @@
+<!--****************************************************
+ * ESP32 Control Platform
+ * Copyright (c) 2024 WilliTourt 2944925833@qq.com
+*****************************************************-->
+
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>ESP32 IoT</title>
+        <link rel="icon" href="ESP32.ico" type="image/x-icon">
+        <link rel="stylesheet" href="stylesheet.css">
+    </head>
+
+    <body>
+        <div class="wrapper">
+            <div class="header">
+                <p>ESP32 Control Platform</p>
+                <div>
+                    <button class="aboutbutton">About</button>
+                    <div class="aboutcontent">
+
+                        <p>这是"重庆邮电大学第十一届“光电芯杯”单片机应用设计竞赛"的作品</p>
+                        <p>项目名称: ESP32 IoT Control Platform</p>
+                        <p>项目描述: 此项目基于ESP32-S3-DevKitC开发板, 实现了基于局域网和NTP服务器的智能家居控制平台。主要功能包括一般设备控制, 门禁控制, 定时任务设置, 传感器信息显示, 设备信息显示等。</p>
+                        <p>队员: ---</p>
+                        <p>&nbsp;&nbsp;&nbsp;&nbsp;其中我 --- 负责前端设计、后端esp32网络服务器的实现和部分硬件开发工作, 并和---共同完成了门禁系统开发。---和---则负责测试工作以及最终效果呈现。</p>
+                        <br />
+                        <p>&nbsp;&nbsp;界面说明:</p>
+                        <p>1. 左区域为设备控制区域, 分为开关控制区, 门禁设置两部分</p>
+                        <p>2. 右区域为设备信息区域, 包括当前时间, 闹钟设置框, 定时任务设置框, 传感器信息等。</p>
+                        <br />
+                        <p>&nbsp;&nbsp;功能说明:</p>
+                        <p>1. 开关控制区: 包括灯, 门, 窗帘等等设备的开关控制。如有需要可以随时添加更多设备。</p>
+                        <p>2. 门禁设置区: 包括门禁密码设置, 指纹添加/删除, 开/关门等。</p>
+                        <p>3. 闹钟设置框: 用于设置闹钟, 蜂鸣器会在到达设定时间后响起。</p>
+                        <p>4. 定时任务设置框: 用于设置定时任务, 系统会在定时时间到达时执行相应的任务。</p>
+                        <p>&nbsp;*&nbsp;定时任务目前只能设置一个。若前一个定时任务还未执行就发送第二个定时任务, 则会覆盖第一个定时任务。</p>
+                        <p>&nbsp;*&nbsp;定时任务的正则表达式为: /^[device]-[action]-(\d{2})-(\d{2})-(\d{2})$/</p>
+                        <p>&nbsp;&nbsp;&nbsp;*&nbsp;device参数: led | door | buzzer | curtain | light;</p>
+                        <p>&nbsp;&nbsp;&nbsp;*&nbsp;action参数: on | off | toggle | open | close | up | down;</p>
+                        <br />
+                        <br />
+                        <p>* 前端总代码行数: 1000+&nbsp;&nbsp;&nbsp;&nbsp;后端代码行数: 1250+</p>
+                        <br />
+                        <p style="color: rgb(112, 58, 238);">啊, 你问为啥整个网页全是英文? 因为我喜欢 :)</p>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="mainbackground">
+                <div class="main">
+                    <div class="left">
+                        <p>Device Control</p>
+                        <hr class="divider" />
+
+                        <div class="card">
+                            <div class="background"></div>
+                            <div class="content">
+
+                                <p>Smart Furnitures</p>
+                                <div class="subcard">
+                                    <p>Light Control</p>
+                                    <button class="button" onclick="handleLED()">On / Off</button>
+                                </div>
+                                <div class="subcard">
+                                    <p>Door Control</p>
+                                    <button class="button" onclick="handleDoor()">Open / Close</button>
+                                </div>
+                                <div class="subcard" style="width: 100%;">
+                                    <p>Window Control</p>
+                                    <div class="rangeContainer">
+                                        <p class="rangeLeft" style= "left: 0px;">Close</p>
+                                        <input type="range" min="0" max="90" value="0" class="slider" id="windowSlider" onchange="handleWindow(this.value)">
+                                        <p class="rangeRight" style="right: 0px;">Open</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <p>Access Control</p>
+                        <hr class="divider" />
+
+                        <div class="card">
+                            <div class="background"></div>
+                            <div class="content">
+
+                                <p>Keypad</p>
+                                <div class="PWD">
+                                    <p>Password Settings</p>
+                                    <div class="pwdContent">
+                                        <input type="text" id="keypadPWD" placeholder="Set access password" />
+                                        <button class="button" onclick="setPWD()">Set</button>
+                                        <p id="PWDchk"></p>
+                                    </div>
+                                </div>
+
+                                <p>AS608 Fingerprint Module</p>
+                                <div class="auth">
+                                    <p>Fingerprint Management</p>
+                                    <div class="authContent">
+                                        
+                                        <!-- <table id="fingerTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>ID</th>
+                                                </tr>    
+                                            </thead>
+                                            <tbody>
+
+                                            </tbody>
+                                        </table> -->
+
+                                        <input type="text" id="fID" placeholder="Enter fingerprint ID" />
+                                        <button class="button" onclick="addFinger()" style="margin-right: 10px;">Add Fingerprint</button>
+                                        <button class="button" onclick="delFinger()">Delete Fingerprint</button>
+                                        <p id="authChk"></p>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right">
+                        <p>Device Info</p>
+                        <hr class="divider" />
+                        <div class="card">
+                            <div class="background"></div>
+                            <div class="content">
+
+                                <p>Current Time</p>
+
+                                <div class="subcard">
+                                    <p><span id="time">N/A</span></p>
+                                    <p style="margin-top: 15px;">Alarm:<p>
+
+                                    <div class="alarm">
+                                        <input type="text" id="alarmHour" placeholder="Hour">
+                                        <p>:</p>
+                                        <input type="text" id="alarmMinute" placeholder="Minute">
+                                        <button class="button" onclick="alarmTask()">Set</button>
+                                    </div>
+                                    <p id="alarmChk" style="margin-left: 20px;"></p>
+                                    <p id="scheduledAlarm" style="display: none;"></p>
+                                    <p style="margin-top: 15px;">Customized timer task:<p>
+
+                                    <div class="timer">
+                                        <input type="text" id="timerCommand" placeholder="Enter commands e.g: led-on-23-59-30">
+                                        <button class="button" onclick="timerTask()">Set</button>
+                                    </div>
+                                    <p id="timerCmdChk"></p>
+                                    <p id="scheduledTask" style="display: none;"></p>
+
+                                </div>
+
+                                <p>Temperature and Humidity</p>
+                                <div class="subcard" style="line-height: 1.5; padding-left: 30px;">
+                                        <p>Temperature: <span id="dhtTemp">N/A</span>&nbsp;°C</p>
+                                        <p>Humidity: <span id="dhtHumi">N/A</span>&nbsp;%</p>                                        
+                                </div>
+
+                                <p>Device Status</p>
+                                <div class="deviceStatus">
+                                    <p class="status">Light: <span id="ledStatus">N/A</span></p>
+                                    <p class="status">Door: <span id="doorStatus">N/A</span></p>
+                                </div>
+                                <div class="deviceStatus">
+                                    <p class="status">Window: <span id="windowStatus">N/A</span>°</p>
+                                    <p style="opacity: 0.3;">(Add more)</p>
+                                </div>
+                                <br />
+                                <p class="status">Guard System Status:&nbsp;&nbsp;&nbsp;<span id="guardStatus">N/A</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>This terminal is designed by WilliTourt.&nbsp;&nbsp;&nbsp;&nbsp;Mail: <a href="mailto:2944925833@qq.com">2944925833@qq.com</a></p>
+                <p>Copyright © 2024 WilliTourt. All rights reserved.</p>
+                <p>Powered by ESP32-S3 DevKitC</p>
+            </div>
+        </div>
+
+        <script src="webFuncs.js"></script>
+
+    </body>
+</html>

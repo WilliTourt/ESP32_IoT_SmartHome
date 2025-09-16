@@ -1,0 +1,222 @@
+
+<!--****************************************************
+ * ESP32-C3 FH4 Ctrl Platform
+ * Copyright (c) 2025 WilliTourt 2944925833@qq.com
+*****************************************************-->
+
+<!--
+ *
+ * Page Structure:
+ * 
+ *
+ * Header:
+ *  - Title
+ *  - About button
+ *  - About content
+ * 
+ *
+ * Main:
+ *
+ *  - Left side:
+ *    - Device Control
+ *      - Smart Furnitures
+ *        - Light Control
+ *        - Door Control
+ *        - etc.
+ *      - Access Control
+ *
+ *  - Right side:
+ *    - Info
+ *      - Current Time
+ *        - Alarm
+ *        - Customized timer task
+ *      - Temperature and Humidity
+ *     - Device Status
+ *        - Furnitures
+ *        - Slave Devices
+ * 
+ *
+ * Footer:
+ *  - Copyright
+ *
+-->
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>ESP32-C3 FH4 IoT Core</title>
+        <link rel="icon" href="ESP32.ico" type="image/x-icon" />
+        <link rel="stylesheet" href="stylesheet.css" />
+    </head>
+
+    <body>
+        <div class="wrapper">
+            <div class="header">
+                <p>Control Platform</p>
+                <div class="header-buttons">
+                    <button class="headerbutton displaybutton" onclick="setDisplayMode()">
+                        Display
+                        <div class="displaymode"></div>
+                    </button>
+                    <button class="headerbutton aboutbutton">About</button>
+                </div>
+                <div class="aboutcontent">
+
+                    <p style="font-weight: bold;">&nbsp;&nbsp;功能说明:</p>
+                    <p style="font-weight: bold;">顶部：</p>
+                    <p>&nbsp;设有一个显示模式切换按钮(正常/夜间)。</p>
+                    <p style="font-weight: bold;">左侧：</p>
+                    <p>&nbsp;1. 可控制客厅、卧室、餐厅等灯具的开关。按钮颜色对应灯的当前状态。</p>
+                    <p>&nbsp;2. 可设置门禁密码。</p>
+                    <p style="font-weight: bold;">右侧：</p>
+                    <p>&nbsp;1. 显示当前时间。可设置闹钟和自定义定时任务。</p>
+                    <p>&nbsp;2. 显示温湿度。</p>
+                    <p>&nbsp;3. 显示从机状态。</p>
+                    <p>&nbsp;</p>
+                    <p>*闹钟设置：可设置闹钟时间(hh:mm:ss)。设定时间到达时，蜂鸣器响，此时需通过按下物理按钮(S/2)解除闹钟。</p>
+                    <p>**自定义定时任务：目前可设置两个自定义命令。在设定的时间到达时，执行相应简单操作。若前一个定时任务还未执行，同一个定时器内后设置的任务将覆盖前一个任务。</p>
+                    <p>&nbsp;</p>
+                    <p style="color: rgb(134, 91, 234); font-weight: bold;">**定时任务格式：[device]-[action]-(\d{2})-(\d{2})-(\d{2})</p>
+                    <p style="color: rgb(134, 91, 234); font-weight: bold;">&nbsp;[device]参数： bedroomLight(bed) | livingroomLight(living) | diningroomLight(dining)</p>
+                    <p style="color: rgb(134, 91, 234); font-weight: bold;">&nbsp;[action]参数： on | off | open | close</p>
+
+                </div>
+            </div>
+
+            <div class="mainbackground">
+                <div class="main">
+                    <div class="left">
+                        <p>Device Control</p>
+                        <hr class="divider" />
+
+                        <div class="card">
+                            <div class="background"></div>
+                            <div class="content">
+
+                                <p>Smart Furnitures</p>
+                                <div class="subcard">
+                                    <p>Bedroom Light</p>
+                                    <button class="button" id="bedroomLight" onclick="handleLight('bedroom')">On / Off</button>
+                                </div>
+                                <div class="subcard">
+                                    <p>Living Room Light</p>
+                                    <button class="button" id="livingroomLight" onclick="handleLight('livingroom')">On / Off</button>
+                                </div>
+                                <div class="subcard">
+                                    <p>Dining Room Light</p>
+                                    <button class="button" id="diningroomLight" onclick="handleLight('diningroom')">On / Off</button>
+                                </div>
+                                <div class="subcard">
+                                    <p>Door Control</p>
+                                    <button class="button" onclick="handleDoor()">Open / Close</button>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <p>Access Control</p>
+                        <hr class="divider" />
+
+                        <div class="card">
+                            <div class="background"></div>
+                            <div class="content">
+                                <p>Door Access</p>
+                                <div class="PWD">
+                                    <p>Password Settings</p>
+                                    <div class="pwdContent">
+                                        <input type="text" id="keypadPWD" placeholder="Set access password" />
+                                        <button class="button" onclick="setPWD()">Set</button>
+                                        <p id="PWDchk"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right">
+
+                        <p>Info</p>
+                        <hr class="divider" />
+                        <div class="card">
+                            <div class="background"></div>
+                            <div class="content">
+
+                                <p>Current Time</p>
+
+                                <div class="subcard">
+                                    <p><span id="time">N/A</span></p>
+                                    <p style="margin-top: 15px;">Alarm:<p>
+
+                                    <div class="alarm">
+                                        <input type="text" id="alarmHour" placeholder="Hr">
+                                        <p>:</p>
+                                        <input type="text" id="alarmMinute" placeholder="Min">
+                                        <p>:</p>
+                                        <input type="text" id="alarmSecond" placeholder="Sec">
+                                        <button class="button" onclick="alarmTask()">Set</button>
+                                    </div>
+                                    <p id="alarmChk" style="margin-left: 20px;"></p>
+                                    <p id="scheduledAlarm" style="display: none;"></p>
+                                    <p style="margin-top: 15px;">Customized timer task:<p>
+
+                                    <div class="timer">
+                                        <input type="text" id="timerCommand" placeholder="Enter commands e.g: led-on-23-59-30">
+                                        <button class="button" onclick="timerTask()">Set</button>
+                                    </div>
+                                    <p id="timerCmdChk"></p>
+                                    <p id="scheduledTask" style="display: none;"></p>
+
+                                    <div class="timer2">
+                                        <input type="text" id="timerCommand2" placeholder="Enter commands for second timer">
+                                        <button class="button" onclick="timerTask2()">Set</button>
+                                    </div>
+                                    <p id="timerCmdChk2"></p>
+                                    <p id="scheduledTask2" style="display: none;"></p>
+
+                                </div>
+
+                                <p>Temperature and Humidity</p>
+                                <div class="subcard" style="line-height: 1.5; padding-left: 30px; margin-bottom: 0px;">
+                                        <p>Temperature: <span id="dhtTemp">N/A</span>&nbsp;°C</p>
+                                        <p>Humidity: <span id="dhtHumi">N/A</span>&nbsp;%</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p>Device Status</p>
+                        <hr class="divider" />
+                        <div class="card">
+                            <div class="background"></div>
+                            <div class="content">
+
+                                <p class="status">Door: <span id="doorStatus">N/A</span></p>
+
+                                <div style="padding-top: 20px;"></div>
+
+                                <p>Slave Devices</p>
+                                <div class="espStatus">
+                                    <p class="status">ESP8266 - Bedroom: <span id="espStatus1">N/A</span></p>
+                                    <p class="status">ESP8266 - Living Room: <span id="espStatus2">N/A</span></p>
+                                    <p class="status">ESP8266 - (???): <span id="espStatus3">N/A</span></p>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>This terminal is designed by WilliTourt.</p>
+                <p>Copyright © 2025 WilliTourt. All rights reserved.</p>
+                <p>Powered by ESP32-C3 FH4 IoT Core.</p>
+            </div>
+        </div>
+
+        <script src="webFuncs.js"></script>
+
+    </body>
+</html>

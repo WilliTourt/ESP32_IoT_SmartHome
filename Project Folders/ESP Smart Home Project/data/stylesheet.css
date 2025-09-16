@@ -1,0 +1,780 @@
+
+/*******************************************************
+ * ESP32-C3 FH4 Ctrl Platform
+ * Copyright (c) 2025 WilliTourt 2944925833@qq.com
+*******************************************************/
+
+
+
+/* general **********************************/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Lucida Sans", sans-serif;
+}
+
+.button {
+	background-color: rgb(250, 250, 250);
+	border: 3px solid rgb(57, 117, 114);
+	border-radius: 24px;
+	padding: 10px 20px;
+	text-align: center;
+	font-size: 15px;
+	font-family: "Lucida Sans", sans-serif;
+	color: #555;
+	margin-top: 15px;
+	transition-duration: 0.2s;
+	cursor: pointer;
+}
+
+.button:hover,
+.button.on:hover,
+.button.off:hover {
+	background-color: rgb(57, 117, 114);
+	box-shadow: 0 0 7px rgb(57, 117, 114);
+	color: rgb(250, 250, 250);
+}
+
+.button:active {
+	transform: scale(0.9);
+}
+
+input[type="text"] {
+    border: rgb(57, 117, 114) 3px solid;
+    border-radius: 20px;
+    font-family: "Lucida Sans", sans-serif;
+    padding: 7px 20px;
+    font-size: 16px;
+}
+
+.rangeContainer {
+    position: relative;
+    width: 75%;
+    margin: auto;
+    margin-top: 15px;
+}
+
+.rangeLeft,
+.rangeRight {
+    top: 23px;
+    position: absolute;
+    font-size: 14px;
+    color: #555;
+}
+
+input[type="range"] {
+    appearance: none;
+    width: 100%;
+    height: 20px;
+    background: transparent;
+    outline: none;
+    opacity: 0.85;
+    transition: opacity 0.15s;
+}
+
+input[type="range"]:hover {
+    opacity: 1;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    border: none;
+    height: 20px;
+    width: 6px;
+    border-radius: 2px;
+    background: rgb(57, 117, 114);
+    cursor: pointer;
+    margin-top: -7.5px;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+    height: 5px;
+    background: linear-gradient(to right, rgb(115, 230, 224), rgb(76, 153, 149));
+    border-radius: 5px;
+}
+
+.divider {
+    border: none;
+    height: 2px;
+    background-color: rgb(57, 117, 114);
+    margin-top: 15px;
+    width: 65%;
+}
+
+span {
+    color:rgb(57, 117, 114);
+}
+/********************************************/
+
+/* header ***********************************/
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(
+        110deg,
+        #fcfcfc 60%,
+        rgba(223, 233, 255, 0.7) 90%,
+        rgba(194, 201, 255, 0.7) 100%   
+    );
+    padding: 20px;
+    padding-left: 80px;
+    border-bottom: rgb(208, 213, 221) solid 1px;
+    font-size: 34px;
+    color: rgb(34, 105, 102);
+    position: relative;
+}
+
+.header-buttons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    position: relative;
+}
+
+.headerbutton {
+    font-family: "Lucida Sans", sans-serif;
+    color: rgb(34, 105, 102);
+    background-color: transparent; /* 移除背景色 */
+    border: none;
+    margin-left: 15px;
+    margin-right: 15px;
+    cursor: pointer;
+    font-size: 22px;
+}
+
+.headerbutton:hover {
+    color: rgb(27, 85, 82);
+}
+
+.displaybutton {
+    position: relative;
+}
+
+.aboutbutton {
+    margin-right: 20px;
+}
+
+.aboutcontent {
+    position: absolute;
+    max-width: 700px;
+    max-height:400px;
+    overflow: auto;
+    top: 100px;
+    margin-left: 20px;
+    right: 20px;
+    padding: 40px;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    font-size: 18px;
+    color: #555;
+    word-spacing: 4px;
+    line-height: 1.5;
+    background: linear-gradient(
+        115deg,
+        rgba(234, 255, 255, 0.95) 0%,
+        rgba(219, 225, 255, 0.95) 100%
+    );
+    border: rgb(208, 213, 221) solid 1px;
+    border-radius: 16px;
+    border-top-right-radius: 0;
+    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.3s;
+    z-index: 2;
+}
+
+/********************************************/
+
+/* main *************************************/
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.mainbackground {
+    background-image: url('background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    flex: 1;
+    color: #484848;
+}
+
+.main {
+    width: 95%;
+    margin: auto;
+    padding: 18px;
+    font-size: 25px;
+}
+
+.left {
+    width: 60%;
+    float: left;
+    padding: 15px;
+}
+
+.right {
+    width: 40%;
+    float: left;
+    padding: 15px;
+}
+
+.card {
+    /* background-color: rgba(161, 161, 161, 0.1); */
+    position: relative;
+    padding: 25px;
+    margin-bottom: 30px;
+    font-size: 20px;
+}
+
+/*分离出背景和内容*/
+.background {
+    background: linear-gradient(
+        115deg,
+        rgba(181, 243, 243, 0.8) 0%,
+        rgba(202, 210, 247, 0.6) 100%
+    );
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.3;
+    transition: opacity 0.3s;
+    border-radius: 24px;
+    border-top-left-radius: 0;
+    border-end-end-radius: 0;
+    z-index: 0;             /*确保背景在字下面*/
+}
+
+.left .card .background {   /*左右侧背景透明度不同*/
+    opacity: 0.3;
+}
+
+.right .card .background {
+    opacity: 1;
+}
+
+.card:hover .background {
+    opacity: 1;
+}
+
+.content {
+    position: relative;
+    z-index: 1;             /*确保字在背景之上*/
+}
+
+.subcard {
+    width: 49%;
+    padding: 10px;
+    margin-top: 10px;
+    font-size: 18px;
+    text-align: center;
+    display: inline-block;
+}
+
+.right .subcard {
+    width: 100%;
+    margin-bottom: 20px;
+    text-align: left;
+}
+/********************************************/
+
+.PWD {
+    padding: 15px 0px 10px 35px;
+    font-size: 18px;
+}
+
+.pwdContent {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: left;
+    margin-top: 10px;
+    column-gap: 20px;
+}
+
+#keypadPWD {
+    width: 70%;
+}
+
+.PWD .button {
+    display: inline-block;
+    width: 70px;
+    padding: 6px 7px;
+    margin: 0px;
+    font-size: 14px;
+    border: 3px solid rgb(57, 117, 114);
+    visibility: hidden;
+    opacity: 0;
+    transition: 0.2s;
+}
+
+.PWD .button.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+#PWDchk {
+    font-size: 17px;
+    font-weight: bold;
+    margin-top: 5px;
+    display: none;
+}
+
+
+
+/* time *************************************/
+#time {
+    font-size: 46px;
+    font-weight: bold;
+}
+
+.alarm {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    margin-top: 10px;
+    gap: 10px;
+}
+
+#alarmHour {
+    width: 22%;
+}
+
+#alarmMinute {
+    width: 22%;
+}
+
+#alarmSecond {
+    width: 22%;
+    margin-right: 5px;
+}
+
+#alarmChk {
+    font-size: 17px;
+    font-weight: bold;
+    margin-top: 5px;
+    color: rgb(57, 117, 114);
+    display: none;
+}
+
+#scheduledAlarm {
+    display: none;
+    font-size: 18px;
+    margin-top: 5px;
+    color: rgb(57, 117, 114);
+}
+
+.alarm .button {
+    margin-top: 0px;
+    padding: 6px 20px;
+    font-size: 14px;
+    visibility: hidden;
+    opacity: 0;
+    transition: 0.2s;
+}
+
+.alarm .button.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.timer,
+.timer2 {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    margin-top: 10px;
+    gap: 16px;
+}
+
+#timerCommand,
+#timerCommand2 {
+    width: 100%;
+    transition: width 0.3s ease-in-out;
+}
+
+/*输入框有内容时*/
+#timerCommand:not(:placeholder-shown) {
+    width: calc(100% - 70px);
+}
+
+#timerCommand2:not(:placeholder-shown) {
+    width: calc(100% - 70px);
+}
+
+#timerCmdChk,
+#timerCmdChk2 {
+    font-size: 17px; 
+    font-weight: bold; 
+    margin-top: 5px; 
+    color: rgb(57, 117, 114);
+    display: none;    
+}
+
+#scheduledTask,
+#scheduledTask2 {
+    display: none;
+    font-size: 18px;
+    margin-top: 5px;
+    color: rgb(57, 117, 114);
+}
+
+.timer .button,
+.timer2 .button {
+    display: inline-block;
+    width: 0px;
+    padding: 6px 0px;
+    margin: 0px;
+    font-size: 0px;
+    border: 0px solid rgb(57, 117, 114);
+    transition: 0.3s;
+}
+
+.timer .button.active,
+.timer2 .button.active {
+    width: 70px;
+    padding: 6px 7px;
+    font-size: 14px;
+    border: 3px solid rgb(57, 117, 114);
+}
+/********************************************/
+
+/* device status ****************************/
+
+.displaymode {
+    pointer-events: none; /* 禁用鼠标事件 */
+    width: 26px;
+    height: 6px;
+    position: absolute;
+    top: 115%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 3px;
+    background-color: rgb(179, 179, 179);
+    transition-duration: 0.2s;
+}
+
+.button.on {
+    background-color: rgb(213, 255, 235);
+}
+
+.button.off {
+    background-color: rgb(255, 234, 234);
+}
+
+.button.error {
+    background-color: rgb(255, 242, 210);
+}
+
+.espStatus {
+    padding-left: 15px;
+    margin: 10px;
+}
+
+.espStatus .status {
+    width: 100%;
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+/********************************************/
+
+
+
+/* footer ***********************************/
+
+.footer {
+    font-size: 16px;
+    line-height: 1.5;
+    border-top: rgb(208, 213, 221) solid 1px;
+    margin-top: auto;
+    padding: 20px;
+    padding-left: 100px;
+    background-color: #fcfcfc;
+    color: rgb(34, 105, 102);
+}
+
+/********************************************/
+
+
+
+/* media queries ****************************/
+
+@media screen and (max-width:1350px) {
+    .button {
+        margin-top: 10px;
+        padding: 9px 18px;
+        font-size: 14px;
+    }
+
+    .header {
+        font-size: 32px;
+        padding: 18px;
+        padding-left: 70px;
+    }
+
+    .headerbutton {
+        font-size: 21px;
+    }
+
+    .main {
+        font-size: 23px;
+    }
+
+    .left,
+    .right {
+        padding: 10px;
+    }
+
+    .card {
+        padding: 20px;
+        font-size: 18px;
+        margin-bottom: 25px;
+    }
+
+    .subcard {
+        font-size: 17px;
+        padding: 8px;
+        margin-top: 8px;
+    }
+
+    .right .subcard {
+        margin-bottom: 15px;
+    }
+
+    .PWD {
+        padding: 14px 0px 10px 30px;
+        font-size: 17px;
+    }
+
+    #PWDchk,
+    #alarmChk,
+    #timerCmdChk,
+    #timerCmdChk2,
+    #scheduledTask,
+    #scheduledTask2,
+    #scheduledAlarm {
+        font-size: 16px;
+    }
+
+    #time {
+        font-size: 35px;
+    }
+
+    .alarm {
+        gap: 8px;
+    }
+
+    .espStatus .status {
+        font-size: 16px;
+    }
+
+    .footer {
+        font-size: 15px;
+        padding: 18px;
+        padding-left: 80px;
+    }
+}
+
+@media screen and (max-width:1075px) {
+
+    .main {
+        font-size: 22px;
+        width: 100%;
+    }
+
+    .displaymode {
+        width: 24px;
+    }
+
+
+    .mainbackground {
+        background-image: url('background1.png');
+    }
+
+    .left,
+    .right {
+        width: 100%;
+        float: none;
+    }
+
+    #keypadPWD {
+        width: 68%;
+    }
+
+    #PWDchk,
+    #alarmChk,
+    #timerCmdChk,
+    #timerCmdChk2,
+    #scheduledTask,
+    #scheduledTask2,
+    #scheduledAlarm {
+        font-size: 16px;
+    }
+
+    #time {
+        font-size: 50px;
+    }
+
+    #alarmHour,
+    #alarmMinute,
+    #alarmSecond {
+        width: 16%;
+    }
+
+    .alarm {
+        gap: 10px;
+    }
+
+}
+
+@media screen and (max-width:750px) {
+    .aboutcontent {
+        font-size: 16px;
+    }
+}
+
+@media screen and (max-width:620px) {
+
+    .button {
+        margin-top: 10px;
+        padding: 9px 18px;
+        font-size: 14px;
+    }
+
+    .header {
+        font-size: 26px;
+        padding: 16px;
+        padding-left: 50px;
+    }
+
+    .headerbutton {
+        font-size: 18px;
+    }
+
+    .displaymode {
+        width: 22px;
+    }
+
+    .aboutcontent {
+        top: 85px;
+        font-size: 15px;
+        padding: 25px;
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+
+    .main {
+        font-size: 20px;
+    }
+
+    .card {
+        padding: 18px;
+        margin-bottom: 22px;
+    }
+
+    .subcard {
+        width: 100%;
+        font-size: 16px;
+        margin-top: 6px;
+    }
+
+    .right .subcard {
+        margin-bottom: 10px;
+    }
+
+    #keypadPWD {
+        width: 75%;
+    }
+
+    #time {
+        font-size: 45px;
+    }
+
+    #alarmHour,
+    #alarmMinute,
+    #alarmSecond {
+        width: 22%;
+    }
+
+    .footer {
+        font-size: 14px;
+        padding: 16px;
+        padding-left: 40px;
+    }
+
+    input[type="text"] {
+        font-size: 14px;
+    }
+
+}
+
+@media screen and (max-width:500px) {
+
+    .button,
+    .PWD .button,
+    .timer .button.active,
+    .timer2 .button.active {
+        border: 2px solid rgb(57, 117, 114);
+    }
+
+    input[type="text"] {
+        border: rgb(57, 117, 114) 2px solid;
+        padding: 6px 18px;
+    }
+
+    .header {
+        font-size: 24px;
+        padding-left: 40px;
+    }
+
+    .headerbutton {
+        font-size: 16px;
+    }
+
+    .displaymode {
+        width: 20px;
+        height: 5px;
+    }
+
+    .aboutbutton {
+        margin-right: 15px;
+    }
+
+    .subcard {
+        margin-top: 4px;
+    }
+
+    #keypadPWD {
+        width: 71%;
+    }
+
+    .PWD .button {
+        width: 60px;
+    }
+
+    .alarm {
+        gap: 6px;
+    }
+
+    .timer .button.active,
+    .timer2 .button.active {
+        width: 60px;
+    }
+
+    .footer {
+        font-size: 12px;
+        padding: 14px;
+        padding-left: 30px;
+    }
+
+}

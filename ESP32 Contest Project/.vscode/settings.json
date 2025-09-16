@@ -1,0 +1,24 @@
+{
+    "files.associations": {
+        "cmath": "cpp",
+        "*.tcc": "cpp",
+        "ctime": "cpp",
+        "iomanip": "cpp",
+        "limits": "cpp",
+        "numeric": "cpp",
+        "streambuf": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "utility": "cpp",
+        "exception": "cpp",
+        "fstream": "cpp",
+        "iosfwd": "cpp",
+        "new": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp",
+        "array": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "algorithm": "cpp"
+    }
+}
